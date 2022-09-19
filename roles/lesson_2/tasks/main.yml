@@ -1,0 +1,24 @@
+---
+- name: Create ansible user
+  user:
+    name: ansible
+    shell: /bin/bash
+    home: /home/ansible
+    groups: users
+    append: yes
+
+- name: Create directory
+  file: 
+    path: /home/ansible/work_dir
+    state: directory
+    owner: ansible
+    group: users
+    mode: '0755'
+
+- name: Create file
+  shell: echo "Hello World!" > /home/ansible/work_dir/file.txt
+
+- name: Download file
+  get_url:
+    url: https://raw.githubusercontent.com/ansible/ansible/devel/README.rst
+    dest: /home/ansible/work_dir/README.rst
