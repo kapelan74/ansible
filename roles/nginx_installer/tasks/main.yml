@@ -1,76 +1,32 @@
 ---
-- name: Nginx install
-  tags: 
-  - install 
-  - configure
+- name: Nginx installer!
+  tags: check, install, configure
   block:
-    - name: Check installed Nginx
-      package_facts:
-        manager: "auto"
+  - name: Check installed Nginx
+    package_facts:
+      manager: "auto"
 
-    - name: Nginx check result 
-      debug:
-        msg: "{{ ansible_facts.packages['nginx'][0].version }} version of Nginx are installed!" 
-      when: "'nginx' in ansible_facts.packages"
+  - name: Set facts
+    set_fact:
+      nginx_installed_ver: "{{ ansible_facts.packages['nginx'][0].version }}"
+    when: "'nginx' in ansible_facts.packages"
 
-- name: Nginx install
+  - name: Show Nginx version 
+    debug:
+      msg: "{{ nginx_installed_ver }} version of Nginx are installed!" 
+
+
+- name: Install Nginx package
+  include_tasks: install.yml
   tags: install
-  block:
-    - name: Update repositories cache and install nginx package
-      package:
-        name: nginx
-        state: "{{ nginx_ver }}"
-        update_cache: yes
+  when: nginx_installed_ver != nginx_ver
 
-    - name: Allow HTTP port in firewalld
-      ufw:
-        rule: allow
-        name: Nginx HTTP
-
-    - name: Start and Enabe nginx
-      systemd:
-        name: nginx
-        enabled: yes
-        state: started
-
-  when: "'nginx' not in ansible_facts.packages"
-
-- name: Nginx configure
+- name: Configure Nginx
+  include_tasks: configure.yml
   tags: configure
-  block:
-    - name: Copy domain file
-      template:
-        src: domain.j2
-        dest: "/etc/nginx/sites-available/{{ domain }}"
+  when: nginx_installed_ver != "None"
 
-    - name: Create link
-      file:
-        src: "/etc/nginx/sites-available/{{ domain }}"
-        dest: "/etc/nginx/sites-enabled/{{ domain }}"
-        state: link
-        mode: '0755'
-
-    - name: Create suite directory
-      file:
-        path: "{{ root_dir }}"
-        state: directory
-        recurse: yes
-        mode: '0755'
-
-    - name: Copy index.html
-      template:
-        src: index.html.j2
-        dest: "{{ root_dir }}/index.html"
-
-    - name: Change config file
-      replace:
-        path: "/etc/nginx/nginx.conf"
-        regexp: '# server_names_hash_bucket_size 64;'
-        replace: 'server_names_hash_bucket_size 64;'
-
-    - name: Reload nginx
-      systemd:
-        name: nginx
-        state: reloaded
-
-  when: "'nginx' in ansible_facts.packages"
+- name: Configure Nginx
+  include_tasks: create_users.yml
+  tags: create_users
+  

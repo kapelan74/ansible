@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-ansible-playbook lesson_4.yml \
+ansible-playbook lesson_5.yml \
                 -i inventory/dev/hosts \
                 "$@"

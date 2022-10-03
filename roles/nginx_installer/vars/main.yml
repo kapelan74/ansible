@@ -1,9 +1,14 @@
 ---
-# vars file for nginx_installer
-
 # Nginx version
-nginx_ver: "latest"
+nginx_ver: "1.18.0-0ubuntu1.3"
 
 # Variables nginx.conf
 domain: "mydomain.ru"
 root_dir: "/var/www/{{ domain }}/html"
+
+# Users
+users:
+  - login: "vasya"
+    pass: "vasya_pass"
+  - login: "petya"
+    pass: "petya_pass"
