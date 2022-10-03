@@ -1,0 +1,37 @@
+- name: Configure Nginx
+  tags: configure
+  block:
+  - name: Copy domain file
+    template:
+      src: domain.j2
+      dest: "/etc/nginx/sites-available/{{ domain }}"
+
+  - name: Create link to domain file
+    file:
+      src: "/etc/nginx/sites-available/{{ domain }}"
+      dest: "/etc/nginx/sites-enabled/{{ domain }}"
+      state: link
+      mode: '0755'
+
+  - name: Create suite directory
+    file:
+      path: "{{ root_dir }}"
+      state: directory
+      recurse: yes
+      mode: '0755'
+
+  - name: Copy index.html in suite directory
+    template:
+      src: index.html.j2
+      dest: "{{ root_dir }}/index.html"
+
+  - name: Change config file
+    replace:
+      path: "/etc/nginx/nginx.conf"
+      regexp: '# server_names_hash_bucket_size 64;'
+      replace: 'server_names_hash_bucket_size 64;'
+
+  - name: Reload nginx service
+    systemd:
+      name: nginx
+      state: reloaded

@@ -1,0 +1,17 @@
+- name: Create groups and users
+  tags: create_users
+  block:
+  - name: Create group web-admins 
+    group:
+      name: web-admins
+      state: present
+
+  - name: Create users      
+    user:
+      name: "{{ item.login }}"
+      shell: /bin/bash
+      groups: web-admins
+      home: "/home/{{ item.login }}"
+      password: "{{ item.pass | password_hash('sha512') }}"
+    with_list: "{{ users }}"
+
