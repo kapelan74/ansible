@@ -1,2 +1,5 @@
 ---
 nginx_installed_ver: "None"
+
+upstreams_servers:
+  - "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"

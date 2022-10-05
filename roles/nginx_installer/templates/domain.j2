@@ -1,6 +1,6 @@
 server {
-        listen 80;
-        listen [::]:80;
+        listen {{ port }};
+        listen [::]:{{ port }};
 
         root /var/www/{{ domain }}/html;
         index index.html index.htm index.nginx-debian.html;
