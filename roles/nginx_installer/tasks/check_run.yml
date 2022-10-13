@@ -1,0 +1,17 @@
+- name: Check status 
+  tags: check_run
+  block:
+  - name: Check site status
+    ansible.builtin.uri:
+      url: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ port | default(80) }}/health"
+      return_content: yes
+      status_code: 200
+    delegate_to: 127.0.0.1
+    register: result
+
+  - set_fact:
+      status_health: "{{ result.content | from_json }}"
+
+  - name: Show site status
+    debug:
+      var: status_health.nginx.status

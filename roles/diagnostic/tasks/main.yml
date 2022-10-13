@@ -1,0 +1,39 @@
+---
+- name: Check health
+  tags: diag_nginx, diag_mysql
+  block:
+  - name: Check health
+    ansible.builtin.uri:
+      url: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ port | default(80) }}/health"
+      return_content: yes
+      status_code: 200
+    delegate_to: 127.0.0.1
+    register: result
+    ignore_errors: yes
+
+  - name: Show health status
+    debug:
+      var: result.status
+
+  - block:
+    - set_fact:
+        status_health: "{{ result.content | from_json }}"
+
+    - name: Show nginx status
+      debug:
+        var: status_health.nginx.status
+
+    - name: Show mysql status
+      debug:
+        var: status_health.mysql.status
+    when: result.status == 200
+
+- name: Start nginx diagnostic
+  include_tasks: nginx_diag.yml
+  tags: diag_nginx
+  when: status_health.nginx.status | default(false) | bool == false
+
+- name: Start mysql diagnostic
+  include_tasks: mysql_diag.yml
+  tags: diag_mysql
+  when: status_health.mysql.status | default(false) | bool == false

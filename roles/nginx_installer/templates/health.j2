@@ -1,0 +1,14 @@
+{
+    "nginx": {
+        "status": true
+    },
+    "mysql":{
+        "status": true
+    },
+    "info": {
+        "host_name": "{{ hostvars[inventory_hostname]['ansible_nodename']}}",
+        "host_ip": "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}",
+        "os": "{{ hostvars[inventory_hostname]['ansible_distribution']}}",
+        "os_ver": "{{ hostvars[inventory_hostname]['ansible_distribution_version']}}"
+    }
+}

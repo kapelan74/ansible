@@ -1,0 +1,38 @@
+---
+- name: MySQL diagnostic! 
+  tags: diag_mysql
+  block:
+  - name: Check installed mysql
+    package_facts:
+      manager: "auto"
+
+  - name: Set facts
+    set_fact:
+      mysql_installed_ver: "{{ ansible_facts.packages['mysql-server'][0].version | default('None') }}"
+
+  - name: Show Mysql version 
+    debug:
+      msg: "{{ mysql_installed_ver }} version of MySQL are installed!" 
+
+  - name: Check service status
+    command: systemctl status mysql.service
+    register: service_status
+    ignore_errors: yes
+
+  - name: Show service status
+    debug:
+      var: service_status.rc
+
+  - name: Check port
+    wait_for:
+      port: "{{ mysql_port }}"
+      state: started
+      delay: 0
+      timeout: 3
+      msg: Port closed!
+    ignore_errors: yes
+    register: result
+
+  - name: Show port status
+    debug:
+      msg: "{{ result.msg | default('Port opened!') }}"  

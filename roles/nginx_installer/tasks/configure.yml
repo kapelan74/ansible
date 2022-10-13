@@ -25,25 +25,13 @@
 
   - name: Copy index.html in suite directory
     template:
-      src: index.html.j2
-      dest: "{{ root_dir }}/index.html"
-
-  - name: Change config file
-    replace:
-      path: "/etc/nginx/nginx.conf"
-      regexp: '# server_names_hash_bucket_size 64;'
-      replace: 'server_names_hash_bucket_size 64;'
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+    with_items:
+    - { src: "index.j2", dest: "{{ root_dir }}/index.html" }
+    - { src: "health.j2", dest: "{{ root_dir }}/health" }
 
   - name: Reload nginx service
     systemd:
       name: nginx
       state: reloaded
-
-  - name: Check site status
-    ansible.builtin.uri:
-      url: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-      return_content: yes
-    register: result
-
-  - debug:
-      msg: "Server status: {{ result.status }}"

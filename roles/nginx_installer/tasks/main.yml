@@ -1,6 +1,6 @@
 ---
 - name: Nginx installer!
-  tags: check, install, configure
+  tags: check_install, install, configure, check_run
   block:
   - name: Check installed Nginx
     package_facts:
@@ -8,8 +8,7 @@
 
   - name: Set facts
     set_fact:
-      nginx_installed_ver: "{{ ansible_facts.packages['nginx'][0].version }}"
-    when: "'nginx' in ansible_facts.packages"
+      nginx_installed_ver: "{{ ansible_facts.packages['nginx'][0].version | default('None') }}"
 
   - name: Show Nginx version 
     debug:
@@ -24,6 +23,11 @@
 - name: Configure Nginx
   include_tasks: configure.yml
   tags: configure
+  when: nginx_installed_ver != "None"
+
+- name: Check status run
+  include_tasks: check_run.yml
+  tags: check_run
   when: nginx_installed_ver != "None"
 
 - name: Configure Nginx
