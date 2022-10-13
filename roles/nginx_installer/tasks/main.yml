@@ -1,0 +1,36 @@
+---
+- name: Nginx installer!
+  tags: check_install, install, configure, check_run
+  block:
+  - name: Check installed Nginx
+    package_facts:
+      manager: "auto"
+
+  - name: Set facts
+    set_fact:
+      nginx_installed_ver: "{{ ansible_facts.packages['nginx'][0].version | default('None') }}"
+
+  - name: Show Nginx version 
+    debug:
+      msg: "{{ nginx_installed_ver }} version of Nginx are installed!" 
+
+
+- name: Install Nginx package
+  include_tasks: install.yml
+  tags: install
+  when: nginx_installed_ver != nginx_ver
+
+- name: Configure Nginx
+  include_tasks: configure.yml
+  tags: configure
+  when: nginx_installed_ver != "None"
+
+- name: Check status run
+  include_tasks: check_run.yml
+  tags: check_run
+  when: nginx_installed_ver != "None"
+
+- name: Configure Nginx
+  include_tasks: create_users.yml
+  tags: create_users
+  

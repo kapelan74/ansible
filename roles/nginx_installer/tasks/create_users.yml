@@ -1,0 +1,17 @@
+- name: Create groups and users
+  tags: create_users
+  block:
+  - name: Create groups "{{ users_grops }}" 
+    group:
+      name: "{{ users_grops }}"
+      state: present
+
+  - name: Create users      
+    user:
+      name: "{{ item.login }}"
+      shell: "{{ users_shell }}"
+      groups: "{{ users_grops }}"
+      home: "/home/{{ item.login }}"
+      password: "{{ item.pass | password_hash('sha512') }}"
+    with_list: "{{ other_users }}"
+

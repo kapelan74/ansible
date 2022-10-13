@@ -1,0 +1,24 @@
+---
+# Nginx version
+nginx_ver: "1.18.0-0ubuntu1.3"
+
+# Variables nginx.conf
+user: "www-data"
+port: 80
+worker_connections: 768
+keepalive_timeout: 65
+types_hash_max_size: 2048
+server_names_hash_bucket_size: 64
+
+domain: "mydomain.ru"
+root_dir: "/var/www/{{ domain }}/html"
+
+# Users
+other_users:
+  - login: "vasya"
+    pass: "vasya_pass"
+  - login: "petya"
+    pass: "petya_pass"
+
+users_shell: "/bin/bash"
+users_grops: "web-admins"

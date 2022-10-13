@@ -1,0 +1,37 @@
+- name: Configure Nginx
+  tags: configure
+  block:
+  - name: Copy config files
+    template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+    with_items:
+      - { src: "nginx.conf.j2", dest: "/etc/nginx/nginx.conf" }
+      - { src: "domain.j2", dest: "/etc/nginx/sites-available/{{ domain }}" }
+      
+  - name: Create link to domain file
+    file:
+      src: "/etc/nginx/sites-available/{{ domain }}"
+      dest: "/etc/nginx/sites-enabled/{{ domain }}"
+      state: link
+      mode: '0755'
+
+  - name: Create suite directory
+    file:
+      path: "{{ root_dir }}"
+      state: directory
+      recurse: yes
+      mode: '0755'
+
+  - name: Copy index.html in suite directory
+    template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+    with_items:
+    - { src: "index.j2", dest: "{{ root_dir }}/index.html" }
+    - { src: "health.j2", dest: "{{ root_dir }}/health" }
+
+  - name: Reload nginx service
+    systemd:
+      name: nginx
+      state: reloaded

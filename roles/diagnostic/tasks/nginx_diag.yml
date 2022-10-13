@@ -1,0 +1,40 @@
+---
+- name: Check installed nginx!
+  tags: diag_nginx
+  block:
+  - name: Check packages
+    package_facts:
+      manager: "auto"
+
+  - name: Set facts
+    set_fact:
+      nginx_installed_ver: "{{ ansible_facts.packages['nginx'][0].version | default('None') }}"
+
+  - name: Show Nginx version 
+    debug:
+      msg: "{{ nginx_installed_ver }} version of Nginx are installed!" 
+
+  - name: Check service status
+    command: systemctl status nginx.service
+    register: service_status
+    ignore_errors: yes
+
+  - name: Show service status
+    debug:
+      var: service_status.rc
+
+  - name: Check port
+    wait_for:
+      port: "{{ nginx_port }}"
+      state: started
+      delay: 0
+      timeout: 3
+      msg: Port closed!
+    ignore_errors: yes
+    register: result
+
+  - name: Show port status
+    debug:
+      msg: "{{ result.msg | default('Port opened!') }}"
+
+  
